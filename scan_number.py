@@ -120,6 +120,13 @@ def ocr(image):
             and detection[1][-4:].isdigit()
         ):
             reference_num = detection[1].replace("0D", "OD")
+        if (
+            "00" in detection[1]
+            and detection[1][2].isdigit()
+            and len(detection[1]) == 10
+            and detection[1][-4:].isdigit()
+        ):
+            reference_num = detection[1].replace("00", "OD")
 
         if "/" in detection[1]:
             date_candidate = detection[1].split(" ")[0]
@@ -127,11 +134,11 @@ def ocr(image):
                 best_fit = date_candidate
 
             dates += date_candidate + " "
-    if reference_num == None:
+    if reference_num is None:
         print("Reference number not found.")
         fh.folderize_no_reference(file)
         exit()
-    if best_fit == None:
+    if best_fit is None:
         print("Date not found.")
         fh.folderize_no_date(file)
         exit()
@@ -158,4 +165,3 @@ if __name__ == "__main__":
             else:
                 scan_image(file)
                 fh.folderize()
-
