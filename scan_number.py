@@ -126,7 +126,7 @@ def ocr(image):
             and len(detection[1]) == 10
             and detection[1][-4:].isdigit()
         ):
-            reference_num = detection[1].replace("000", "OD0")
+            reference_num = detection[1].replace("00", "OD")
 
         if "/" in detection[1]:
             date_candidate = detection[1].split(" ")[0]
