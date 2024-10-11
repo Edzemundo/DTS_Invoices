@@ -85,9 +85,9 @@ def save_image(image):
     global file
     print(f"Saving processed image: {file}...")
     # 5. Save and view the preprocessed image
-    cv2.imwrite(f"{file}_processed.png", image)
-    print(f"Processed image saved as {file}_processed.png")
-    processed_image = Image.open(f"{file}_processed.png")
+    cv2.imwrite(f"saved_{file}_processed.png", image)
+    print(f"Processed image saved as saved_{file}_processed.png")
+    processed_image = Image.open(f"saved_{file}_processed.png")
     processed_image.show()
 
 
