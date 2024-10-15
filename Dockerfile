@@ -10,8 +10,7 @@ COPY requirements.txt .
 RUN sudo rm /bin/sh && sudo ln -s /bin/bash /bin/sh
 RUN sudo apt update
 RUN brew install poppler
-RUN brew install python3
-#RUN apt-get install python3-pip -y
+RUN brew install python@3.12
 RUN python3 -m pip install -r requirements.txt --break-system-packages
 
 
