@@ -39,7 +39,7 @@ class Handler(FileSystemEventHandler):
                 p3 = multiprocessing.Process(target=run_scan_number())
                 p3.start()
                 p3.join()
-                print(f"Monitoring directory...")
+                print(f"Monitoring for new files in directory...")
            
                 
 def run_scan_number():
@@ -49,7 +49,7 @@ def run_scan_number():
 def run_manual_watcher():
     while True:
         time.sleep(10)
-        print("Monitoring directory manually at ...")
+        print("Scanning files in directory manually...")
         p3 = multiprocessing.Process(target=run_scan_number())
         p3.start()
         p3.join()
@@ -71,7 +71,3 @@ if __name__ == "__main__":
 
     p1.join()
     p2.join()
-
-
-    
-
