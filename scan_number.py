@@ -20,8 +20,8 @@ def scan_image(file):
     # Load the image using OpenCV
     img = cv2.imread(file)
 
-    # processed_image = process(img, 'save')
-    processed_image = process(img)
+    processed_image = process(img, 'save')
+    # processed_image = process(img)
     reference_num, date = ocr(processed_image)
     fh.rename_scans(file, f"{reference_num}_{date}.jpeg")
 
@@ -45,8 +45,8 @@ def scan_pdf(file):
 
     img = cv2.imread(f"temp_{0}_converted.png")
 
-    # processed_image = process(img, 'save')
-    processed_image = process(img)
+    processed_image = process(img, 'save')
+    # processed_image = process(img)
     reference_num, date = ocr(processed_image)
 
     print("Removing temporary images...")
@@ -107,7 +107,7 @@ def ocr(image):
     # Print the result
     for detection in result:
         # detection[1] contains the text
-        # print(detection[1]) # Output the detected text
+        print(detection[1]) # Output the detected text
         if (
             "OD" in detection[1]
             and len(detection[1]) == 10
