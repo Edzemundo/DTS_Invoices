@@ -114,19 +114,24 @@ def ocr(image):
             and detection[1][-4:].isdigit()
         ):
             reference_num = detection[1]
-        if (
+        elif (
             "0D" in detection[1]
             and len(detection[1]) == 10
             and detection[1][-4:].isdigit()
         ):
             reference_num = detection[1].replace("0D", "OD")
-        if (
+        elif (
             "00" in detection[1]
-            and detection[1][2].isdigit()
             and len(detection[1]) == 10
             and detection[1][-4:].isdigit()
         ):
             reference_num = detection[1].replace("00", "OD")
+        elif (
+            "08" in detection[1]
+            and len(detection[1]) == 10
+            and detection[1][-4:].isdigit()
+        ):
+            reference_num = detection[1].replace("08", "OD")
 
         if "/" in detection[1]:
             date_candidate = detection[1].split(" ")[0]
