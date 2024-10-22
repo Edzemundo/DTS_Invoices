@@ -62,29 +62,29 @@ if __name__ == "__main__":
     current_directory = os.getcwd()
     folderize()  # Call folderize as a function
 
-    watcher = Watcher(current_directory)
+    # watcher = Watcher(current_directory)
     # run_watcher(os.getcwd())
-    run_manual_watcher()
+    # run_manual_watcher()
 
     # Create processes
-    # p1 = multiprocessing.Process(target=run_manual_watcher)
-    # p2 = multiprocessing.Process(target=run_watcher, args=(current_directory,))
-    #
-    # # Start processes
-    # p1.start()
-    # p2.start()
-    #
-    # try:
-    #     # Wait for processes to complete (which they won't, unless there's an error)
-    #     while p1.is_alive() and p2.is_alive():
-    #         time.sleep(1)
-    # except KeyboardInterrupt:
-    #     print("Keyboard interrupt received. Terminating processes.")
-    # finally:
-    #     # Ensure processes are terminated
-    #     p1.terminate()
-    #     p2.terminate()
-    #     p1.join()
-    #     p2.join()
+    p1 = multiprocessing.Process(target=run_manual_watcher)
+    p2 = multiprocessing.Process(target=run_watcher, args=(current_directory,))
+
+    # Start processes
+    p1.start()
+    p2.start()
+
+    try:
+        # Wait for processes to complete (which they won't, unless there's an error)
+        while p1.is_alive() and p2.is_alive():
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Keyboard interrupt received. Terminating processes.")
+    finally:
+        # Ensure processes are terminated
+        p1.terminate()
+        p2.terminate()
+        p1.join()
+        p2.join()
 
     print("All processes have finished.")

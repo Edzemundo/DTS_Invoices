@@ -11,9 +11,11 @@ COPY requirements.txt .
 RUN rm /bin/sh &&  ln -s /bin/bash /bin/sh
 RUN apt update && apt upgrade -y
 # Dependencies for cv2 and pdf2image
-RUN apt update && apt install ffmpeg libsm6 libxext6 poppler-utils -y
+RUN apt update && apt install curl git ffmpeg libsm6 libxext6 poppler-utils -y
 # Needed to add python add-apt-repository
 RUN apt install software-properties-common -y
+
+RUN apt install libpoppler-dev -y
 
 # Installing python and python dependencies through conda
 RUN add-apt-repository ppa:deadsnakes/ppa
