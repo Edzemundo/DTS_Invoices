@@ -141,7 +141,11 @@ def menu():
             cwd = input("Is it in the CWD? (y/n): ")
             if cwd.lower() == "y":
                 target_folder = input("Name of destination folder: ")
-                move_pdfs_to_folder("_", target_folder, "cwd")
+                move = input("Move instead of copy? (y/n): ")
+                if move.lower() == "y":
+                    move_pdfs_to_folder("_", target_folder, "cwd", "move")
+                else:
+                    move_pdfs_to_folder("_", target_folder, "cwd")
             elif cwd.lower() == "n":
                 start_dir = input("Please enter starting directory path: ")
                 target_folder = input("Please enter target folder path: ")
@@ -165,4 +169,3 @@ if __name__ == "__main__":
     # rename_scans(oldname, newname)
 
     menu()
-
