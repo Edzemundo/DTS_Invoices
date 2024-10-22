@@ -15,7 +15,9 @@ class Watcher:
 
     def run(self):
         print(f"Monitoring directory: {self.directory_to_watch}")
-        self.observer.schedule(self.event_handler, self.directory_to_watch, recursive=False)
+        self.observer.schedule(
+            self.event_handler, self.directory_to_watch, recursive=False
+        )
         self.observer.start()
         try:
             while True:
@@ -36,38 +38,50 @@ class Handler(FileSystemEventHandler):
                 print(f"File created: {event.src_path}")
                 # Perform additional actions, e.g., trigger another Python script
                 time.sleep(5)
-                p3 = multiprocessing.Process(target=run_scan_number())
-                p3.start()
-                p3.join()
-                print(f"Monitoring for new files in directory...")
-           
-                
+                run_scan_number()
+
+
 def run_scan_number():
     print("Running scan_number.py...")
     subprocess.run("python3 scan_number.py", shell=True)
-    
+
+
+def run_watcher(directory):
+    watcher = Watcher(directory)
+    watcher.run()
+
 def run_manual_watcher():
     while True:
-        time.sleep(10)
         print("Scanning files in directory manually...")
-        p3 = multiprocessing.Process(target=run_scan_number())
-        p3.start()
-        p3.join()
-        
-                       
+        run_scan_number()
+        time.sleep(15)
+
 
 if __name__ == "__main__":
     current_directory = os.getcwd()
-    folderize
+    folderize()  # Call folderize as a function
 
-    # To be used when running in a virtual environment/container
-    p1 = multiprocessing.Process(target=run_manual_watcher())
-    p1.start()
-    
-    #To be used when running natively outside a virtual environment/container
     watcher = Watcher(current_directory)
-    p2 = watcher.run()
+
+    # Create processes
+    p1 = multiprocessing.Process(target=run_manual_watcher)
+    p2 = multiprocessing.Process(target=run_watcher, args=(current_directory,))
+
+    # Start processes
+    p1.start()
     p2.start()
 
-    p1.join()
-    p2.join()
+    try:
+        # Wait for processes to complete (which they won't, unless there's an error)
+        while p1.is_alive() and p2.is_alive():
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("Keyboard interrupt received. Terminating processes.")
+    finally:
+        # Ensure processes are terminated
+        p1.terminate()
+        p2.terminate()
+        p1.join()
+        p2.join()
+    
+    print("All processes have finished.")

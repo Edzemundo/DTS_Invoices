@@ -72,7 +72,47 @@ def folderize_no_date(file):
         shutil.move(file, os.path.join("Date_not_found", file))
         print(f"{file} moved to directory Date_not_found")
 
+
+def move_pdfs_to_folder(start_dir, target_folder, *args):
+    # Create the target folder if it doesn't exist
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
     
+    if start_dir.lower() == "cwd":
+        start_dir = os.getcwd()
+        target_folder = os.path.join(start_dir, target_folder)
+
+    # Walk through all directories and files
+    for dirpath, _, filenames in os.walk(start_dir):
+        for filename in filenames:
+            # Check if the file is a PDF
+            if filename.lower().endswith('.pdf'):
+                # Create full file path
+                file_path = os.path.join(dirpath, filename)
+                
+                # Move/Copy the PDF file to the target folder
+                if args and "move" in args:
+                    try:
+                        shutil.move(file_path, os.path.join(target_folder, filename))
+                        print(f'Moved: {file_path} to {target_folder}')
+                    except shutil.SameFileError:
+                        print(f'Same file: {file_path}')
+                else:
+                    try:
+                        shutil.copy(file_path, os.path.join(target_folder, filename))
+                        print(f'Copied: {file_path} to {target_folder}')
+                    except shutil.SameFileError:
+                        print(f'Same file: {file_path}')
+
+def rename_OD_files(directory):
+    print(f"Renaming files in '{directory}'...")
+    files = os.listdir(directory)
+    for file in files:
+        if file.endswith(".pdf") and "_" in file:
+            old_name = file.split(".")[0]
+            new_name = file.replace(old_name, f"scan{old_name}")
+            os.rename(os.path.join(directory, file), os.path.join(directory, new_name))
+            print(f"Renamed '{file}' to '{new_name}'")
 
         
 if __name__ == "__main__":
