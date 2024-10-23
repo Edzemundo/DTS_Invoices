@@ -1,7 +1,7 @@
 import os
 import time
 import subprocess
-import multiprocessing
+# import multiprocessing
 from file_handling import folderize
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -67,24 +67,27 @@ if __name__ == "__main__":
     # run_manual_watcher()
 
     # Create processes
-    p1 = multiprocessing.Process(target=run_manual_watcher)
-    p2 = multiprocessing.Process(target=run_watcher, args=(current_directory,))
+    # p1 = multiprocessing.Process(target=run_manual_watcher)
+    # p2 = multiprocessing.Process(target=run_watcher, args=(current_directory,))
 
     # Start processes
-    p1.start()
-    p2.start()
+    # p1.start()
+    # p2.start()
 
     try:
         # Wait for processes to complete (which they won't, unless there's an error)
-        while p1.is_alive() and p2.is_alive():
-            time.sleep(1)
+        # while p1.is_alive() and p2.is_alive():
+            # time.sleep(1)
+            
+        run_manual_watcher() 
+            
     except KeyboardInterrupt:
         print("Keyboard interrupt received. Terminating processes.")
     finally:
         # Ensure processes are terminated
-        p1.terminate()
-        p2.terminate()
-        p1.join()
-        p2.join()
+        # p1.terminate()
+        # p2.terminate()
+        # p1.join()
+        # p2.join()
 
-    print("All processes have finished.")
+        print("All processes have finished.")
