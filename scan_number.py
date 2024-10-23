@@ -1,9 +1,9 @@
 import os
 import cv2
-import easyocr
 import numpy as np
 from PIL import Image
 import file_handling as fh
+from paddleocr import PaddleOCR
 from pdf2image import convert_from_path
 
 # to prevent "decompression bomb DOS attack"
@@ -17,7 +17,7 @@ def scan_image(file):
         print(f"File '{file}' does not exist.")
         exit()
 
-    # Load the image using OpenCV
+    # Load the image using Pillow
     img = cv2.imread(file)
 
     # processed_image = process(img, 'save')
@@ -33,18 +33,12 @@ def scan_pdf(file):
         print(f"File '{file}' does not exist.")
         exit()
 
-    # Load the image using OpenCV
+    # Load the image using pdf2image
+    print("Converting PDF page to image...")
     images = convert_from_path(file)
-    i = 0
-    image_names = []
-    print("Creating temporary images from PDF...")
-    for image in images:
-        image.save(f"temp_{i}_converted.png", "PNG")
-        image_names.append(f"temp_{i}_converted.png")
-        i += 1
+    images[0].save("temp_image.png")
 
-    img = cv2.imread(f"temp_{0}_converted.png")
-
+    img = cv2.imread("temp_image.png")
     # processed_image = process(img, 'save')
     processed_image = process(img)
     reference_num, date = ocr(processed_image)
@@ -84,10 +78,9 @@ def process(img, *args):
 def save_image(image):
     global file
     print(f"Saving processed image: {file}...")
-    # 5. Save and view the preprocessed image
     cv2.imwrite(f"{file}_processed.png", image)
-    print(f"Processed image saved as {file}_processed.png")
-    processed_image = Image.open(f"{file}_processed.png")
+    print(f"Processed image saved as processed_{file}.png")
+    processed_image = Image.open(f"processed_{file}.png")
     processed_image.show()
 
 
@@ -99,46 +92,27 @@ def ocr(image):
     best_fit = None
 
     # Initialize the reader. You can specify the languages here (e.g., ['en'] for English).
-    reader = easyocr.Reader(["en"])
+    reader = PaddleOCR(use_angle_cls=False, use_gpu=False, lang="en", det=True)
 
     # Extract the text
-    result = reader.readtext(image)
+    result = reader.ocr(image, cls=False)
+    print(result)
 
     # Print the result
     for detection in result:
-        # detection[1] contains the text
-        # print(detection[1]) # Output the detected text
-        if (
-            "OD" in detection[1]
-            and len(detection[1]) == 10
-            and detection[1][-4:].isdigit()
-        ):
-            reference_num = detection[1]
-        elif (
-            "0D" in detection[1]
-            and len(detection[1]) == 10
-            and detection[1][-4:].isdigit()
-        ):
-            reference_num = detection[1].replace("0D", "OD")
-        elif (
-            "00" in detection[1]
-            and len(detection[1]) == 10
-            and detection[1][-4:].isdigit()
-        ):
-            reference_num = detection[1].replace("00", "OD")
-        elif (
-            "08" in detection[1]
-            and len(detection[1]) == 10
-            and detection[1][-4:].isdigit()
-        ):
-            reference_num = detection[1].replace("08", "OD")
+        for detection_info in detection:
+            word = detection_info[1][0]
+            # print(word)  # Output the detected text
+            if "OD" in word and len(word) == 10 and word[-4:].isdigit():
+                reference_num = word
 
-        if "/" in detection[1]:
-            date_candidate = detection[1].split(" ")[0]
-            if date_candidate.count("/") > 1 and date_candidate[0] == "2":
-                best_fit = date_candidate
+            if "/" in word:
+                date_candidate = word.split(" ")[0]
+                if date_candidate.count("/") > 1 and date_candidate[0] == "2":
+                    best_fit = date_candidate
 
-            dates += date_candidate + " "
+                dates += date_candidate + " "
+
     if reference_num is None:
         print("Reference number not found.")
         fh.folderize_no_reference(file)
