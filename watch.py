@@ -87,4 +87,4 @@ if __name__ == "__main__":
         p1.join()
         p2.join()
 
-    print("All processes have finished.")
+    print("All processes have ended.")
