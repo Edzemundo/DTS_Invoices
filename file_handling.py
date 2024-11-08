@@ -1,6 +1,7 @@
 import os
 import sys
 import shutil
+import pypdf
 
 global scanlist
 scanlist = []
@@ -122,12 +123,48 @@ def rename_OD_files(directory):
             print(f"Renamed '{file}' to '{new_name}'")
 
 
+def split_pdf(input_file, output_dir, num_pages):
+    """
+    Splits a PDF file into separate PDF files, with each file containing 2 pages.
+
+    Parameters:
+    input_file (str): The path to the input PDF file.
+    output_dir (str): The directory where the output PDF files will be saved.
+    num_pages (int): The number of pages to include in each output PDF file.
+    """
+    # Open the input PDF file
+    with open(input_file, "rb") as file:
+        pdf_reader = pypdf.PdfReader(file)
+
+        # Create the output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Split the PDF into 'page_num' segments
+        for page_num in range(0, len(pdf_reader.pages), num_pages):
+            pdf_writer = pypdf.PdfWriter()
+            pdf_writer.add_page(pdf_reader.pages[page_num])
+            if page_num + 1 < len(pdf_reader.pages):
+                pdf_writer.add_page(pdf_reader.pages[page_num + 1])
+
+            # Save the segment as a new PDF file
+            output_file = os.path.join(
+                output_dir,
+                f"{os.path.basename(input_file).split(".")[0]}_{page_num // num_pages + 1}.pdf",
+            )
+            with open(output_file, "wb") as output:
+                pdf_writer.write(output)
+
+    print(f"number of pages: {len(pdf_reader.pages)}")
+    print(f"PDF split into {page_num // num_pages + 1} files in {output_dir}")
+
+
 def menu():
     print("""
-        Welcome fellow techspotter! What'u want?: 
+        Welcome fellow techspotter! What'u want?:
         1. Folderize
         2. Move all PDFs in directory
         3. Prepend PDFs with 'scan'
+        4. Split PDF into multiple PDFs
         0. Exit
         """)
 
@@ -154,10 +191,30 @@ def menu():
         case 3:
             target_folder = input("Where are 'em 'OD' PDFs?: ")
             if target_folder == "cwd":
-                target_folder == "."
+                target_folder = "."
             rename_OD_files(target_folder)
 
         case 4:
+            input_file = input("Enter the input PDF file path: ")
+            output_file = str(
+                input("Enter the output directory path (default is CWD): ").strip()
+                or "."
+            )
+            page_num = int(
+                input(
+                    "Enter the number of pages per output PDF(default is 2): "
+                ).strip()
+                or 2
+            )
+
+            if len(input_file) == 0:
+                print("Input PDF not entered")
+                menu()
+
+            else:
+                split_pdf(input_file, output_file, page_num)
+
+        case 0:
             print("Exiting")
             sys.exit()
 
