@@ -1,5 +1,6 @@
 import os
 import cv2
+import argparse
 import numpy as np
 from PIL import Image
 import file_handling as fh
@@ -8,6 +9,12 @@ from pdf2image import convert_from_path
 
 # to prevent "decompression bomb DOS attack"
 Image.MAX_IMAGE_PIXELS = 933120000
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Watch directory for new files and process them.")
+    parser.add_argument("-p", "--parent", type=bool, default=True, required=False,
+                        help="Determine if the script should check cwd (parent direcrory is checked by default).")
+    return parser.parse_args()
 
 
 def scan_image(file):
@@ -26,7 +33,7 @@ def scan_image(file):
     fh.rename_scans(file, f"{reference_num}_{date}.jpeg")
 
 
-def scan_pdf(file):
+def scan_pdf(file, working_path):
     print(f"Scanning pdf: {file}...")
     # Check if the file exists
     if not os.path.isfile(file):
@@ -50,6 +57,7 @@ def scan_pdf(file):
     print("Temporary images removed.")
 
     fh.rename_scans(file, f"{reference_num}_{date}.pdf")
+    fh.move_pdfs_to_folder(os.getcwd(), working_path, "cwd")
 
 
 def process(img, *args):
@@ -131,7 +139,14 @@ def ocr(image):
 
 
 if __name__ == "__main__":
-    files = fh.listscans()
+
+    args = parse_arguments()
+    if args.parent:
+        working_path = os.path.dirname(os.getcwd())
+        files = fh.listscans(working_path)
+    else:
+        working_path = os.getcwd()
+        files = fh.listscans(working_path)
 
     if len(files) == 0:
         print("No scan files found in the current directory.")
@@ -139,8 +154,8 @@ if __name__ == "__main__":
     else:
         for file in files:
             if file.endswith(".pdf"):
-                scan_pdf(file)
-                fh.folderize()
+                scan_pdf(file, working_path)
+                fh.folderize(working_path)
             else:
                 scan_image(file)
-                fh.folderize()
+                fh.folderize(working_path)

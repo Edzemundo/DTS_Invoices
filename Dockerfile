@@ -25,4 +25,4 @@ RUN source dts_invoices/bin/activate
 RUN pip install -r requirements.txt --break-system-packages
 
 # Run python program
-CMD ["python3", "watch.py"]
+CMD ["python3", "./DTS_Invoices/watch.py"]

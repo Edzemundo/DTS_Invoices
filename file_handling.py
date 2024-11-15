@@ -10,7 +10,7 @@ scanlist = []
 
 
 # Print the names of the files
-def listscans(path="."):
+def listscans(path):
     files = os.listdir(path)
     print("Approved files in the current directory:")
     scanlist = [
@@ -18,9 +18,10 @@ def listscans(path="."):
         for file in files
         if file.startswith("scan") and file.endswith((".pdf", ".jpeg", ".png"))
     ]
-    for file in scanlist:
+    pathlist = [os.path.join(path, file) for file in scanlist]
+    for file in zip(scanlist, pathlist):
         print(file)
-    return scanlist
+    return pathlist
 
 
 def rename_scans(oldname, newname):
@@ -180,9 +181,9 @@ def menu():
                 target_folder = input("Name of destination folder: ")
                 move = input("Move instead of copy? (y/n): ")
                 if move.lower() == "y":
-                    move_pdfs_to_folder("_", target_folder, "cwd", "move")
+                    move_pdfs_to_folder(".", target_folder, "cwd", "move")
                 else:
-                    move_pdfs_to_folder("_", target_folder, "cwd")
+                    move_pdfs_to_folder(".", target_folder, "cwd")
             elif cwd.lower() == "n":
                 start_dir = input("Please enter starting directory path: ")
                 target_folder = input("Please enter target folder path: ")
@@ -190,8 +191,8 @@ def menu():
 
         case 3:
             target_folder = input("Where are 'em 'OD' PDFs?: ")
-            if target_folder == "cwd":
-                target_folder == "."
+            if target_folder == "cwd" or target_folder == ".":
+                target_folder == f"{os.getcwd()}"
             rename_OD_files(target_folder)
 
         case 4:
@@ -224,5 +225,13 @@ if __name__ == "__main__":
     # oldname = input("Enter the old file name: ")
     # newname = input("Enter the new file name: ")
     # rename_scans(oldname, newname)
+
+    working_directory = input(
+        "Please enter the working directory path (leave blank for CWD): "
+    )
+    if working_directory == "":
+        working_directory = os.getcwd()
+    os.chdir(working_directory)
+    print(f"Working directory: {os.getcwd()}")
 
     menu()
