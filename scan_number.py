@@ -22,8 +22,11 @@ def scan_image(file):
 
     # processed_image = process(img, 'save')
     processed_image = process(img)
-    reference_num, date = ocr(processed_image)
-    fh.rename_scans(file, f"{reference_num}_{date}.jpeg")
+    reference_num, date, inc_num = ocr(processed_image)
+    if inc_num is None:
+        fh.rename_scans(file, f"{reference_num}_{date}.jpeg")
+    else:
+        fh.rename_scans(file, f"{reference_num}_{inc_num}_{date}.jpeg")
 
 
 def scan_pdf(file):
@@ -41,7 +44,7 @@ def scan_pdf(file):
     img = cv2.imread("temp_image.png")
     # processed_image = process(img, 'save')
     processed_image = process(img)
-    reference_num, date = ocr(processed_image)
+    reference_num, date, inc_num = ocr(processed_image)
 
     print("Removing temporary images...")
     for possible_temp in os.listdir("."):
@@ -49,7 +52,11 @@ def scan_pdf(file):
             os.remove(possible_temp)
     print("Temporary images removed.")
 
-    fh.rename_scans(file, f"{reference_num}_{date}.pdf")
+    if inc_num is None:
+        fh.rename_scans(file, f"{reference_num}_{date}.pdf")
+    else:
+        fh.rename_scans(file, f"{reference_num}_{inc_num}_{date}.pdf")
+        
 
 
 def process(img, *args):
@@ -90,6 +97,7 @@ def ocr(image):
     dates = ""
     reference_num = None
     best_fit = None
+    inc_num = None
 
     # Initialize the reader. You can specify the languages here (e.g., ['en'] for English).
     reader = PaddleOCR(use_angle_cls=False, use_gpu=False, lang="en", det=True)
@@ -113,6 +121,10 @@ def ocr(image):
 
                 dates += date_candidate + " "
 
+            if "INC" in word:
+                print("Incident number found.")
+                inc_num = word
+
     if reference_num is None:
         print("Reference number not found.")
         fh.folderize_no_reference(file)
@@ -121,13 +133,15 @@ def ocr(image):
         print("Date not found.")
         fh.folderize_no_date(file)
         exit()
+    if inc_num is None:
+        print("Incident number not found.")
 
     # best_fit = re.search("^[0-9]{4}\/[0-9]{2}\/[0-9]{2}", dates)
     date = best_fit.replace("/", "-")
     print(f"Reference Number: {reference_num}")
     print(f"Date: {date}")
 
-    return reference_num, date
+    return reference_num, date, inc_num
 
 
 if __name__ == "__main__":
