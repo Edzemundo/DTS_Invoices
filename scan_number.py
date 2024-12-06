@@ -1,4 +1,5 @@
 import os
+import re
 import cv2
 import numpy as np
 from PIL import Image
@@ -114,6 +115,7 @@ def ocr(image):
             if "OD" in word and len(word) == 10 and word[-4:].isdigit():
                 reference_num = word
 
+            # For finding the date
             if "/" in word:
                 date_candidate = word.split(" ")[0]
                 if date_candidate.count("/") > 1 and date_candidate[0] == "2":
@@ -121,9 +123,12 @@ def ocr(image):
 
                 dates += date_candidate + " "
 
+            # For finding the incident number
             if "INC" in word:
+                # Using regex to extract incident number as it can be found in various locations that may be inconsistent.
+                pattern = r"INC\d{7}"
                 print("Incident number found.")
-                inc_num = word
+                inc_num = re.sub(r"[^A-Za-z0-9]|\b(?!INC\d{7})\w+\b", "", word)
 
     if reference_num is None:
         print("Reference number not found.")
@@ -133,7 +138,8 @@ def ocr(image):
         print("Date not found.")
         fh.folderize_no_date(file)
         exit()
-    if inc_num is None:
+    if inc_num is None or len(inc_num) == 0:
+        inc_num = None
         print("Incident number not found.")
 
     # best_fit = re.search("^[0-9]{4}\/[0-9]{2}\/[0-9]{2}", dates)

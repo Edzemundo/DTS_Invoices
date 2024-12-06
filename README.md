@@ -1,6 +1,6 @@
 # Document Scanner and Organizer
 
-A Python-based utility for automatically scanning, renaming, and organizing document files (PDFs and images) based on their content using OCR. The system watches for new files, processes them to extract reference numbers and dates, and organizes them into appropriate folders.
+A Python-based utility for automatically scanning, renaming, and organizing document files (PDFs and images) based on their content using OCR. The system watches for new files, processes them to extract reference numbers, incident numbers and dates, and organizes them into appropriate folders.
 
 ## Features
 
@@ -25,6 +25,12 @@ pip install watchdog
 pip install pypdf
 ```
 
+These packages are also available in the requirements.txt file and can be installed using:
+
+```bash
+pip install -r requirements.txt
+```
+
 You'll also need to install system dependencies for pdf2image:
 
 For Ubuntu/Debian:
@@ -43,7 +49,8 @@ brew install poppler
 
 - `file_handling.py`: Core utilities for file operations and organization
 - `scan_number.py`: OCR processing and document scanning functionality
-- `watch.py`: File system monitoring and automatic processing
+- `watch.py`: File monitoring and automatic program activation
+- `Dockerfile`: Used to create a docker container that can run the project independently starting from watch.py
 
 ## Usage
 
@@ -63,7 +70,7 @@ This will:
 
 ### Manual File Processing
 
-You can also process files manually using the menu interface:
+You can also process and handle files manually using the menu interface:
 
 ```bash
 python file_handling.py
@@ -71,10 +78,11 @@ python file_handling.py
 
 Menu options include:
 
-1. Folderize - Organize files into dated folders
-2. Move all PDFs in directory
-3. Prepend PDFs with 'scan'
-4. Split PDF into multiple PDFs
+1. Folderize - Organize scanned and renamed files into dated folders
+2. Move all PDFs in the current working directory into specified location
+3. Prepend PDFs with 'scan' - necessary for scanning the file (mainly used for rescanning)
+4. Split PDF into multiple PDFs - for splitting different pages of PDFs into separate files
+0. Exit
 
 ### Document Naming Convention
 
@@ -82,7 +90,7 @@ The system expects and processes files with the following patterns:
 
 - Files starting with "scan" (for listing)
 - Files starting with "OD" (for organization)
-- Supported formats: .pdf, .jpeg, .png
+- Supported formats: .pdf, .jpeg, .png (although major updates have been made for PDFs specifically)
 
 ### File Organization
 
@@ -91,6 +99,7 @@ Files are organized into folders based on their dates:
 - Regular files go into MM-DD folders
 - Files without reference numbers go to "Reference_not_found"
 - Files without dates go to "Date_not_found"
+- Files without incident numbers are ignored
 
 ## Functions
 
@@ -133,4 +142,4 @@ To contribute to this project:
 
 ## License
 
-[Insert your chosen license here]
+MIT License
